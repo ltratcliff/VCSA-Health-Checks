@@ -32,7 +32,10 @@ import (
 	"log"
 	"net/url"
 	"os"
+	"time"
 )
+
+//var m map[string]Host
 
 type Inventory struct {
 	VCSA   []VCSA   `yaml:"vcsa"`
@@ -48,15 +51,19 @@ type VCSA struct {
 }
 
 type Host struct {
-	Name        string `json:"name"`
 	IP          string `json:"ip"`
 	Online      bool   `json:"online"`
-	UsedCPU     int    `json:"used_cpu"`
-	TotalCPU    int    `json:"total_cpu"`
-	FreeCPU     int    `json:"free_cpu"`
-	UsedMemory  int    `json:"used_memory"`
-	TotalMemory int    `json:"total_memory"`
-	FreeMemory  int    `json:"free_memory"`
+	UsedCPU     int    `json:"used_cpu,omitempty"`
+	TotalCPU    int    `json:"total_cpu,omitempty"`
+	FreeCPU     int    `json:"free_cpu,omitempty"`
+	UsedMemory  int    `json:"used_memory,omitempty"`
+	TotalMemory int    `json:"total_memory,omitempty"`
+	FreeMemory  int    `json:"free_memory,omitempty"`
+}
+
+type dbObject struct {
+	Date time.Time       `json:"timestamp"`
+	Data map[string]Host `json:"data"`
 }
 
 func main() {
@@ -77,7 +84,9 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	var hosts []Host
+	var dbObj dbObject
+	dbObj.Date = time.Now()
+	dbObj.Data = make(map[string]Host)
 
 	for _, vcsa := range inventoryStruct.VCSA {
 		log.Printf("connecting to vcsa: %s\n", vcsa.Name)
@@ -88,11 +97,10 @@ func main() {
 		c, err := govmomi.NewClient(ctx, u, true)
 		if err != nil {
 			log.Printf("error connecting to vcsa: %s\n", err)
-			hosts = append(hosts, Host{
-				Name:   vcsa.Name,
+			dbObj.Data[vcsa.Name] = Host{
 				IP:     vcsa.Host,
 				Online: false,
-			})
+			}
 			continue
 		}
 		defer func(c *govmomi.Client, ctx context.Context) {
@@ -145,8 +153,7 @@ func main() {
 				totalCPU := int64(hs.Summary.Hardware.CpuMhz) * int64(hs.Summary.Hardware.NumCpuCores)
 				freeCPU := int64(totalCPU) - int64(hs.Summary.QuickStats.OverallCpuUsage)
 				freeMemory := int64(hs.Summary.Hardware.MemorySize) - (int64(hs.Summary.QuickStats.OverallMemoryUsage) * 1024 * 1024)
-				hosts = append(hosts, Host{
-					Name:        hs.Summary.Config.Name,
+				dbObj.Data[hs.Summary.Config.Name] = Host{
 					IP:          vcsa.Host,
 					Online:      true,
 					UsedCPU:     int(hs.Summary.QuickStats.OverallCpuUsage),
@@ -155,12 +162,12 @@ func main() {
 					UsedMemory:  int(hs.Summary.QuickStats.OverallMemoryUsage),
 					TotalMemory: int(hs.Summary.Hardware.MemorySize),
 					FreeMemory:  int(freeMemory),
-				})
+				}
 			}
 		}
 	}
 	// Marshal the slice to JSON
-	jsonData, err := json.Marshal(hosts)
+	jsonData, err := json.Marshal(dbObj)
 	if err != nil {
 		log.Fatalf("Error marshalling to JSON: %s", err)
 	}
