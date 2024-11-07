@@ -23,19 +23,19 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"github.com/vmware/govmomi"
 	"github.com/vmware/govmomi/find"
 	"github.com/vmware/govmomi/vim25/mo"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"gopkg.in/yaml.v3"
 	"log"
 	"net/url"
 	"os"
 	"time"
 )
-
-//var m map[string]Host
 
 type Inventory struct {
 	VCSA   []VCSA   `yaml:"vcsa"`
@@ -67,6 +67,13 @@ type dbObject struct {
 }
 
 func main() {
+	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017")
+	client, err := mongo.Connect(context.TODO(), clientOptions)
+	if err != nil {
+		log.Fatal(err)
+	}
+	collection := client.Database("devlab").Collection("vcsa")
+
 	var inventoryStruct Inventory
 	inventoryFile, err := os.ReadFile("inventory.yaml")
 	if err != nil {
@@ -166,12 +173,32 @@ func main() {
 			}
 		}
 	}
-	// Marshal the slice to JSON
-	jsonData, err := json.Marshal(dbObj)
+
+	// Convert dbObj to bson
+	document := bson.D{{"timestamp", dbObj.Date}, {"data", dbObj.Data}}
+	insertResult, err := collection.InsertOne(context.TODO(), document)
 	if err != nil {
-		log.Fatalf("Error marshalling to JSON: %s", err)
+		log.Fatal(err)
 	}
 
+	fmt.Println("Inserted a single document: ", insertResult.InsertedID)
+
+	// Find the document
+	//var result bson.D
+	//err = collection.FindOne(context.TODO(), bson.D{{Key: "name", Value: "Alice"}}).Decode(&result)
+	//if err != nil {
+	//	log.Fatal(err)
+	//}
+
+	// Print the result
+	// fmt.Println("Found a single document: ", result)
+
+	// Marshal the slice to JSON
+	//jsonData, err := json.Marshal(dbObj)
+	//if err != nil {
+	//	log.Fatalf("Error marshalling to JSON: %s", err)
+	//}
+
 	// Print the JSON data
-	fmt.Println(string(jsonData))
+	//fmt.Println(string(jsonData))
 }
