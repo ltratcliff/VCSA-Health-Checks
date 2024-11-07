@@ -183,16 +183,6 @@ func main() {
 
 	fmt.Println("Inserted a single document: ", insertResult.InsertedID)
 
-	// Find the document
-	//var result bson.D
-	//err = collection.FindOne(context.TODO(), bson.D{{Key: "name", Value: "Alice"}}).Decode(&result)
-	//if err != nil {
-	//	log.Fatal(err)
-	//}
-
-	// Print the result
-	// fmt.Println("Found a single document: ", result)
-
 	// Marshal the slice to JSON
 	//jsonData, err := json.Marshal(dbObj)
 	//if err != nil {
