@@ -2,7 +2,7 @@
 <html lang=”en”>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content=”width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width">
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.18.2/swagger-ui.css">
     <title>OpenAPI DevLab VCSA</title>
 </head>
@@ -13,7 +13,7 @@
     <script>
         window.onload = () => {
             // Swagger initialization
-            const ui = SwaggerUIBundle({
+            window.ui = SwaggerUIBundle({
                 url: 'openapi.yaml', // Replace with the actual path to your openapi.yaml file
                 dom_id: '#openapi',
                 deepLinking: true,
@@ -21,9 +21,7 @@
                     SwaggerUIBundle.presets.apis,
                     SwaggerUIBundle.SwaggerUIStandalonePreset
                 ],
-                layout: "StandaloneLayout"
             });
-            window.ui = ui;
         };
     </script>
 </body>
