@@ -1,0 +1,123 @@
+openapi: 3.1.0
+info:
+  title: MongoDB REST API
+  description: REST API to fetch data from MongoDB and return it as JSON
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8080
+    description: Local server
+
+paths:
+  /data:
+    get:
+      summary: Retrieve data from MongoDB
+      description: Fetches documents from the `vcsa` collection in the `devlab` database, sorts them by `_id` in ascending order (for the last record), and limits the number of results to 1 documents.
+      responses:
+        '200':
+          description: A JSON document
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Document'
+              example:
+                _id: "67337d1bfaf7dae89bbf6735"
+                data:
+                  DC0_C0_H0:
+                    freecpu: 4521
+                    freememory: 2822230016
+                    ip: "127.0.0.1"
+                    online: true
+                    totalcpu: 4588
+                    totalmemory: 4294430720
+                    usedcpu: 67
+                    usedmemory: 1404
+                  DC0_C0_H1:
+                    freecpu: 4521
+                    freememory: 2822230016
+                    ip: "127.0.0.1"
+                    online: true
+                    totalcpu: 4588
+                    totalmemory: 4294430720
+                    usedcpu: 67
+                    usedmemory: 1404
+                  DC0_C0_H2:
+                    freecpu: 4521
+                    freememory: 2822230016
+                    ip: "127.0.0.1"
+                    online: true
+                    totalcpu: 4588
+                    totalmemory: 4294430720
+                    usedcpu: 67
+                    usedmemory: 1404
+                  DC0_H0:
+                    freecpu: 4521
+                    freememory: 2822230016
+                    ip: "127.0.0.1"
+                    online: true
+                    totalcpu: 4588
+                    totalmemory: 4294430720
+                    usedcpu: 67
+                    usedmemory: 1404
+                timestamp: "2024-11-12T16:06:51.598Z"
+        '500':
+          description: Internal server error, failed to retrieve or return data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error message
+
+components:
+  schemas:
+    Document:
+      type: object
+      properties:
+        _id:
+          type: string
+          example: "67337d1bfaf7dae89bbf6735"
+        data:
+          type: object
+          properties:
+            DC0_C0_H0:
+              $ref: '#/components/schemas/HostData'
+            DC0_C0_H1:
+              $ref: '#/components/schemas/HostData'
+            DC0_C0_H2:
+              $ref: '#/components/schemas/HostData'
+            DC0_H0:
+              $ref: '#/components/schemas/HostData'
+        timestamp:
+          type: string
+          format: date-time
+          example: "2024-11-12T16:06:51.598Z"
+    HostData:
+      type: object
+      properties:
+        freecpu:
+          type: integer
+          example: 4521
+        freememory:
+          type: integer
+          example: 2822230016
+        ip:
+          type: string
+          example: "127.0.0.1"
+        online:
+          type: boolean
+          example: true
+        totalcpu:
+          type: integer
+          example: 4588
+        totalmemory:
+          type: integer
+          example: 4294430720
+        usedcpu:
+          type: integer
+          example: 67
+        usedmemory:
+          type: integer
+          example: 1404

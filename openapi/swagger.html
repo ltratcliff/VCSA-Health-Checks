@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang=”en”>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content=”width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.18.2/swagger-ui.css">
+    <title>OpenAPI DevLab VCSA</title>
+</head>
+<body>
+<div id="openapi"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.18.2/swagger-ui-bundle.js"></script>
+
+    <script>
+        window.onload = () => {
+            // Swagger initialization
+            const ui = SwaggerUIBundle({
+                url: 'openapi.yaml', // Replace with the actual path to your openapi.yaml file
+                dom_id: '#openapi',
+                deepLinking: true,
+                presets: [
+                    SwaggerUIBundle.presets.apis,
+                    SwaggerUIBundle.SwaggerUIStandalonePreset
+                ],
+                layout: "StandaloneLayout"
+            });
+            window.ui = ui;
+        };
+    </script>
+</body>
+</html>
